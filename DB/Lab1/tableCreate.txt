@@ -1,0 +1,81 @@
+-- UUID
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+-- ENUMs
+CREATE TYPE mood_type AS ENUM ('neutral', 'positive', 'negative');
+CREATE TYPE status_type AS ENUM ('normal', 'inoagent');
+
+-- DOMAIN
+CREATE DOMAIN cur_time as TIMESTAMP NOT NULL DEFAULT now()
+
+
+-- main tables
+CREATE TABLE people (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    first_name TEXT NOT NULL,
+    last_name TEXT,
+    b_day cur_time
+);
+
+CREATE TABLE IF NOT EXISTS gov (
+    id UUID PRIMARY KEY,
+    rank INTEGER
+);
+
+CREATE TABLE IF NOT EXISTS conversation (
+    id UUID PRIMARY KEY,
+    description TEXT
+);
+
+
+CREATE TABLE IF NOT EXISTS conversation_report (
+	id UUID PRIMARY KEY,
+	chat_id UUID references conversation(id),
+	author UUID references gov(id),
+	approved_by UUID references gov(id),
+	attention_level INT,
+	notes TEXT,
+	time cur_time
+);
+
+CREATE TABLE IF NOT EXISTS history_of_control (
+    id UUID PRIMARY KEY,
+    citizen_id UUID references people(id),
+    observation_by UUID references gov(id),
+    time cur_time
+);
+
+-- people
+
+CREATE TABLE IF NOT EXISTS status (
+    id UUID PRIMARY KEY,
+    citizen_id UUID references people(id),
+    set_by_gov UUID references gov(id),
+    set_by_report UUID references conversation_report(id),
+    status status_type,
+    time cur_time
+);
+
+-- chats
+CREATE TABLE IF NOT EXISTS participating (
+    id UUID PRIMARY KEY,
+    people_id UUID references people(id),
+    chat_id UUID references conversation(id),
+    UNIQUE(people_id, chat_id)
+);
+
+-- messages
+CREATE TABLE IF NOT EXISTS messages (
+    id UUID PRIMARY KEY,
+    sender_id UUID references people(id),
+    chat_id UUID references conversation(id),
+    mood mood_type,
+    time cur_time
+);
+
+CREATE TABLE IF NOT EXISTS mentioned (
+	id UUID PRIMARY KEY,
+	people_id UUID references people(id),
+    msg_id UUID references messages(id),
+	UNIQUE(people_id, msg_id)
+);

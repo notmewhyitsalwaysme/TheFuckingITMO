@@ -1,0 +1,296 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T2A]{fontenc}
+\usepackage[russian]{babel}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{geometry}
+\usepackage{xcolor}
+\usepackage{longtable}
+\usepackage{multirow}
+\usepackage{makecell}
+\usepackage{rotating}
+\usepackage{pdflscape}
+
+\geometry{top=2cm, bottom=2cm, left=1.5cm, right=1.5cm}
+
+\newcommand{\perm}[1]{\mathbf{#1}^{+}}   % permanent label
+\newcommand{\infty}{\infty}
+
+\title{\textbf{Домашняя работа 2 по дискретной математике}\\[0.5em]
+\large Нахождение кратчайших путей алгоритмом Дейкстры}
+\author{Кливцов Александр Александрович \\ ISU: 504590, Вариант 29}
+\date{}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+
+% ──────────────────────────────────────────────
+\section*{Условие задачи}
+
+Для взвешенного графа $G$ с вершинами $e_1, e_2, \ldots, e_{12}$, заданного матрицей
+смежности~$R$, найти кратчайшие пути от вершины $s = e_1$ до всех остальных вершин
+с помощью алгоритма Дейкстры (алгоритм 7.2.2).
+
+% ──────────────────────────────────────────────
+\section*{Исходная матрица смежности $R$}
+
+\[
+	R =
+	\renewcommand{\arraystretch}{1.1}
+	\begin{array}{c|cccccccccccc}
+		       & e_1 & e_2 & e_3 & e_4 & e_5 & e_6 & e_7 & e_8 & e_9 & e_{10} & e_{11} & e_{12} \\\hline
+		e_1    & 0   & 4   & 4   &     & 2   &     &     & 2   &     &        & 3      &        \\
+		e_2    & 4   & 0   &     &     & 4   &     & 2   &     & 5   &        & 2      & 2      \\
+		e_3    & 4   &     & 0   &     &     & 4   & 4   & 4   &     & 5      & 2      &        \\
+		e_4    &     &     &     & 0   &     & 5   &     &     & 4   &        & 4      &        \\
+		e_5    & 2   & 4   &     &     & 0   & 3   &     &     &     &        &        & 4      \\
+		e_6    &     &     & 4   & 5   & 3   & 0   &     & 4   &     & 3      & 2      &        \\
+		e_7    &     & 2   & 4   &     &     &     & 0   &     &     & 1      & 3      &        \\
+		e_8    & 2   &     & 4   &     &     & 4   &     & 0   &     & 1      & 3      &        \\
+		e_9    &     & 5   &     & 4   &     &     &     &     & 0   &        &        &        \\
+		e_{10} &     &     & 5   &     &     & 3   & 1   & 1   &     & 0      &        &        \\
+		e_{11} & 3   & 2   & 2   & 4   &     & 2   & 3   & 3   &     &        & 0      &        \\
+		e_{12} &     & 2   &     &     & 4   &     &     &     &     &        &        & 0      \\
+	\end{array}
+\]
+
+% ──────────────────────────────────────────────
+\section*{Выполнение алгоритма Дейкстры}
+
+\subsection*{Инициализация (Шаг~1)}
+
+Полагаем $l(e_1) = 0^+$ (постоянная пометка), $p = e_1$.\\
+Для всех $e_i \neq e_1$: $l(e_i) = \infty$ (временные пометки).
+
+% ══════════════════════
+\subsection*{Итерация 1 \hspace{1em} $p = e_1$}
+
+\textbf{Шаг~2.} Соседи $e_1$: $\Gamma e_1 = \{e_2, e_3, e_5, e_8, e_{11}\}$. Обновляем:
+
+\begin{align*}
+	l(e_2)    & = \min(\infty,\ 0+4) = 4 \\
+	l(e_3)    & = \min(\infty,\ 0+4) = 4 \\
+	l(e_5)    & = \min(\infty,\ 0+2) = 2 \\
+	l(e_8)    & = \min(\infty,\ 0+2) = 2 \\
+	l(e_{11}) & = \min(\infty,\ 0+3) = 3
+\end{align*}
+
+\textbf{Шаг~3.} Минимальная временная пометка: $l(e_5) = l(e_8) = 2$.\\
+Выбираем $e_5$ (при равенстве — меньший индекс). \textbf{Шаг~4.} $l(e_5)^+ = 2$, $p = e_5$.
+
+% ══════════════════════
+\subsection*{Итерация 2 \hspace{1em} $p = e_5$}
+
+\textbf{Шаг~2.} $\Gamma e_5 = \{e_1, e_2, e_6, e_{12}\}$ (кроме постоянных $e_1$). Обновляем:
+
+\begin{align*}
+	l(e_2)    & = \min(4,\ 2+4) = \min(4,6) = 4 \quad \text{(без изменений)} \\
+	l(e_6)    & = \min(\infty,\ 2+3) = 5                                     \\
+	l(e_{12}) & = \min(\infty,\ 2+4) = 6
+\end{align*}
+
+\textbf{Шаг~3.} Минимум: $l(e_8) = 2$. \textbf{Шаг~4.} $l(e_8)^+ = 2$, $p = e_8$.
+
+% ══════════════════════
+\subsection*{Итерация 3 \hspace{1em} $p = e_8$}
+
+\textbf{Шаг~2.} $\Gamma e_8 = \{e_1, e_3, e_6, e_{10}, e_{11}\}$ (кроме постоянных $e_1, e_5$). Обновляем:
+
+\begin{align*}
+	l(e_3)    & = \min(4,\ 2+4) = \min(4,6) = 4 \quad \text{(без изменений)} \\
+	l(e_6)    & = \min(5,\ 2+4) = \min(5,6) = 5 \quad \text{(без изменений)} \\
+	l(e_{10}) & = \min(\infty,\ 2+1) = 3                                     \\
+	l(e_{11}) & = \min(3,\ 2+3) = \min(3,5) = 3 \quad \text{(без изменений)}
+\end{align*}
+
+\textbf{Шаг~3.} Минимум: $l(e_{10}) = l(e_{11}) = 3$. Выбираем $e_{10}$.\\
+\textbf{Шаг~4.} $l(e_{10})^+ = 3$, $p = e_{10}$.
+
+% ══════════════════════
+\subsection*{Итерация 4 \hspace{1em} $p = e_{10}$}
+
+\textbf{Шаг~2.} $\Gamma e_{10} = \{e_3, e_6, e_7, e_8\}$ (кроме постоянных $e_8$). Обновляем:
+
+\begin{align*}
+	l(e_3) & = \min(4,\ 3+5) = \min(4,8) = 4 \quad \text{(без изменений)} \\
+	l(e_6) & = \min(5,\ 3+3) = \min(5,6) = 5 \quad \text{(без изменений)} \\
+	l(e_7) & = \min(\infty,\ 3+1) = 4
+\end{align*}
+
+\textbf{Шаг~3.} Минимум: $l(e_{11}) = 3$. \textbf{Шаг~4.} $l(e_{11})^+ = 3$, $p = e_{11}$.
+
+% ══════════════════════
+\subsection*{Итерация 5 \hspace{1em} $p = e_{11}$}
+
+\textbf{Шаг~2.} $\Gamma e_{11} = \{e_1, e_2, e_3, e_4, e_6, e_7, e_8\}$ (кроме постоянных). Обновляем:
+
+\begin{align*}
+	l(e_2) & = \min(4,\ 3+2) = \min(4,5) = 4 \quad \text{(без изменений)} \\
+	l(e_3) & = \min(4,\ 3+2) = \min(4,5) = 4 \quad \text{(без изменений)} \\
+	l(e_4) & = \min(\infty,\ 3+4) = 7                                     \\
+	l(e_6) & = \min(5,\ 3+2) = \min(5,5) = 5 \quad \text{(без изменений)} \\
+	l(e_7) & = \min(4,\ 3+3) = \min(4,6) = 4 \quad \text{(без изменений)}
+\end{align*}
+
+\textbf{Шаг~3.} Минимум: $l(e_2) = l(e_3) = l(e_7) = 4$. Выбираем $e_2$.\\
+\textbf{Шаг~4.} $l(e_2)^+ = 4$, $p = e_2$.
+
+% ══════════════════════
+\subsection*{Итерация 6 \hspace{1em} $p = e_2$}
+
+\textbf{Шаг~2.} $\Gamma e_2 = \{e_1, e_5, e_7, e_9, e_{11}, e_{12}\}$ (кроме постоянных). Обновляем:
+
+\begin{align*}
+	l(e_7)    & = \min(4,\ 4+2) = \min(4,6) = 4 \quad \text{(без изменений)} \\
+	l(e_9)    & = \min(\infty,\ 4+5) = 9                                     \\
+	l(e_{12}) & = \min(6,\ 4+2) = \min(6,6) = 6 \quad \text{(без изменений)}
+\end{align*}
+
+\textbf{Шаг~3.} Минимум: $l(e_3) = l(e_7) = 4$. Выбираем $e_3$.\\
+\textbf{Шаг~4.} $l(e_3)^+ = 4$, $p = e_3$.
+
+% ══════════════════════
+\subsection*{Итерация 7 \hspace{1em} $p = e_3$}
+
+\textbf{Шаг~2.} $\Gamma e_3 = \{e_1, e_6, e_7, e_8, e_{10}, e_{11}\}$ (кроме постоянных). Обновляем:
+
+\begin{align*}
+	l(e_6) & = \min(5,\ 4+4) = \min(5,8) = 5 \quad \text{(без изменений)} \\
+	l(e_7) & = \min(4,\ 4+4) = \min(4,8) = 4 \quad \text{(без изменений)}
+\end{align*}
+
+\textbf{Шаг~3.} Минимум: $l(e_7) = 4$.\\
+\textbf{Шаг~4.} $l(e_7)^+ = 4$, $p = e_7$.
+
+% ══════════════════════
+\subsection*{Итерация 8 \hspace{1em} $p = e_7$}
+
+\textbf{Шаг~2.} $\Gamma e_7 = \{e_2, e_3, e_{10}, e_{11}\}$ --- все уже постоянные. Обновлений нет.
+
+\textbf{Шаг~3.} Минимум: $l(e_6) = 5$.\\
+\textbf{Шаг~4.} $l(e_6)^+ = 5$, $p = e_6$.
+
+% ══════════════════════
+\subsection*{Итерация 9 \hspace{1em} $p = e_6$}
+
+\textbf{Шаг~2.} $\Gamma e_6 = \{e_3, e_4, e_5, e_8, e_{10}, e_{11}\}$ (кроме постоянных). Обновляем:
+
+\begin{align*}
+	l(e_4) & = \min(7,\ 5+5) = \min(7,10) = 7 \quad \text{(без изменений)}
+\end{align*}
+
+\textbf{Шаг~3.} Минимум: $l(e_{12}) = 6$.\\
+\textbf{Шаг~4.} $l(e_{12})^+ = 6$, $p = e_{12}$.
+
+% ══════════════════════
+\subsection*{Итерация 10 \hspace{1em} $p = e_{12}$}
+
+\textbf{Шаг~2.} $\Gamma e_{12} = \{e_2, e_5\}$ --- все постоянные. Обновлений нет.
+
+\textbf{Шаг~3.} Минимум: $l(e_4) = 7$.\\
+\textbf{Шаг~4.} $l(e_4)^+ = 7$, $p = e_4$.
+
+% ══════════════════════
+\subsection*{Итерация 11 \hspace{1em} $p = e_4$}
+
+\textbf{Шаг~2.} $\Gamma e_4 = \{e_6, e_9, e_{11}\}$ (кроме постоянных). Обновляем:
+
+\begin{align*}
+	l(e_9) & = \min(9,\ 7+4) = \min(9,11) = 9 \quad \text{(без изменений)}
+\end{align*}
+
+\textbf{Шаг~3.} Минимум: $l(e_9) = 9$.\\
+\textbf{Шаг~4.} $l(e_9)^+ = 9$, $p = e_9$.
+
+Все вершины получили постоянные пометки. \textbf{Алгоритм завершён.}
+
+% ──────────────────────────────────────────────
+\newpage
+\section*{Сводная таблица меток}
+
+Обозначения: жирный шрифт и знак $^+$ — постоянная пометка; подчёркивание — новая постоянная на данном шаге; курсив — значение изменилось на этом шаге.
+
+\renewcommand{\arraystretch}{1.25}
+\setlength{\tabcolsep}{4pt}
+\begin{center}
+	\begin{tabular}{|c|c||c|c|c|c|c|c|c|c|c|c|c|c|}
+		\hline
+		\textbf{Ит.}   & $p$                        &
+		$e_1$          & $e_2$                      & $e_3$                      & $e_4$                      & $e_5$                      & $e_6$                      & $e_7$                      & $e_8$                      & $e_9$                      & $e_{10}$                   & $e_{11}$                   & $e_{12}$                                    \\
+		\hline
+		Инит.          & $e_1$                      &
+		$\mathbf{0^+}$ & $\infty$                   & $\infty$                   & $\infty$                   & $\infty$                   & $\infty$                   & $\infty$                   & $\infty$                   & $\infty$                   & $\infty$                   & $\infty$                   & $\infty$                                    \\
+		\hline
+		1              & $e_1$                      &
+		$\mathbf{0^+}$ & \textit{4}                 & \textit{4}                 & $\infty$                   & \underline{$\mathbf{2^+}$} & $\infty$                   & $\infty$                   & \textit{2}                 & $\infty$                   & $\infty$                   & \textit{3}                 & $\infty$                                    \\
+		\hline
+		2              & $e_5$                      &
+		$\mathbf{0^+}$ & 4                          & 4                          & $\infty$                   & $\mathbf{2^+}$             & \textit{5}                 & $\infty$                   & \underline{$\mathbf{2^+}$} & $\infty$                   & $\infty$                   & 3                          & \textit{6}                                  \\
+		\hline
+		3              & $e_8$                      &
+		$\mathbf{0^+}$ & 4                          & 4                          & $\infty$                   & $\mathbf{2^+}$             & 5                          & $\infty$                   & $\mathbf{2^+}$             & $\infty$                   & \underline{$\mathbf{3^+}$} & 3                          & 6                                           \\
+		\hline
+		4              & $e_{10}$                   &
+		$\mathbf{0^+}$ & 4                          & 4                          & $\infty$                   & $\mathbf{2^+}$             & 5                          & \textit{4}                 & $\mathbf{2^+}$             & $\infty$                   & $\mathbf{3^+}$             & \underline{$\mathbf{3^+}$} & 6                                           \\
+		\hline
+		5              & $e_{11}$                   &
+		$\mathbf{0^+}$ & 4                          & 4                          & \textit{7}                 & $\mathbf{2^+}$             & 5                          & 4                          & $\mathbf{2^+}$             & $\infty$                   & $\mathbf{3^+}$             & $\mathbf{3^+}$             & 6                                           \\
+		               &                            &                            &                            &                            &                            &                            &                            &                            &                            &                            &                            & \underline{} & \\
+		\hline
+		6              & $e_2$                      &
+		$\mathbf{0^+}$ & \underline{$\mathbf{4^+}$} & 4                          & 7                          & $\mathbf{2^+}$             & 5                          & 4                          & $\mathbf{2^+}$             & \textit{9}                 & $\mathbf{3^+}$             & $\mathbf{3^+}$             & 6                                           \\
+		\hline
+		7              & $e_3$                      &
+		$\mathbf{0^+}$ & $\mathbf{4^+}$             & \underline{$\mathbf{4^+}$} & 7                          & $\mathbf{2^+}$             & 5                          & 4                          & $\mathbf{2^+}$             & 9                          & $\mathbf{3^+}$             & $\mathbf{3^+}$             & 6                                           \\
+		\hline
+		8              & $e_7$                      &
+		$\mathbf{0^+}$ & $\mathbf{4^+}$             & $\mathbf{4^+}$             & 7                          & $\mathbf{2^+}$             & 5                          & \underline{$\mathbf{4^+}$} & $\mathbf{2^+}$             & 9                          & $\mathbf{3^+}$             & $\mathbf{3^+}$             & 6                                           \\
+		\hline
+		9              & $e_6$                      &
+		$\mathbf{0^+}$ & $\mathbf{4^+}$             & $\mathbf{4^+}$             & 7                          & $\mathbf{2^+}$             & \underline{$\mathbf{5^+}$} & $\mathbf{4^+}$             & $\mathbf{2^+}$             & 9                          & $\mathbf{3^+}$             & $\mathbf{3^+}$             & 6                                           \\
+		\hline
+		10             & $e_{12}$                   &
+		$\mathbf{0^+}$ & $\mathbf{4^+}$             & $\mathbf{4^+}$             & 7                          & $\mathbf{2^+}$             & $\mathbf{5^+}$             & $\mathbf{4^+}$             & $\mathbf{2^+}$             & 9                          & $\mathbf{3^+}$             & $\mathbf{3^+}$             & \underline{$\mathbf{6^+}$}                  \\
+		\hline
+		11             & $e_4$                      &
+		$\mathbf{0^+}$ & $\mathbf{4^+}$             & $\mathbf{4^+}$             & \underline{$\mathbf{7^+}$} & $\mathbf{2^+}$             & $\mathbf{5^+}$             & $\mathbf{4^+}$             & $\mathbf{2^+}$             & 9                          & $\mathbf{3^+}$             & $\mathbf{3^+}$             & $\mathbf{6^+}$                              \\
+		\hline
+		12             & $e_9$                      &
+		$\mathbf{0^+}$ & $\mathbf{4^+}$             & $\mathbf{4^+}$             & $\mathbf{7^+}$             & $\mathbf{2^+}$             & $\mathbf{5^+}$             & $\mathbf{4^+}$             & $\mathbf{2^+}$             & \underline{$\mathbf{9^+}$} & $\mathbf{3^+}$             & $\mathbf{3^+}$             & $\mathbf{6^+}$                              \\
+		\hline
+	\end{tabular}
+\end{center}
+
+% ──────────────────────────────────────────────
+\section*{Кратчайшие пути от $e_1$ до всех вершин}
+
+Восстанавливаем пути, отслеживая, через какую вершину была получена каждая финальная пометка:
+
+\begin{center}
+	\renewcommand{\arraystretch}{1.4}
+	\begin{tabular}{|c|c|l|}
+		\hline
+		\textbf{Вершина} & \textbf{Длина} & \textbf{Кратчайший путь}                         \\
+		\hline
+		$e_1$            & $0$            & $e_1$ (исток)                                    \\
+		$e_2$            & $4$            & $e_1 \to e_2$ \quad $(4)$                        \\
+		$e_3$            & $4$            & $e_1 \to e_3$ \quad $(4)$                        \\
+		$e_4$            & $7$            & $e_1 \to e_{11} \to e_4$ \quad $(3+4)$           \\
+		$e_5$            & $2$            & $e_1 \to e_5$ \quad $(2)$                        \\
+		$e_6$            & $5$            & $e_1 \to e_5 \to e_6$ \quad $(2+3)$              \\
+		$e_7$            & $4$            & $e_1 \to e_8 \to e_{10} \to e_7$ \quad $(2+1+1)$ \\
+		$e_8$            & $2$            & $e_1 \to e_8$ \quad $(2)$                        \\
+		$e_9$            & $9$            & $e_1 \to e_2 \to e_9$ \quad $(4+5)$              \\
+		$e_{10}$         & $3$            & $e_1 \to e_8 \to e_{10}$ \quad $(2+1)$           \\
+		$e_{11}$         & $3$            & $e_1 \to e_{11}$ \quad $(3)$                     \\
+		$e_{12}$         & $6$            & $e_1 \to e_5 \to e_{12}$ \quad $(2+4)$           \\
+		\hline
+	\end{tabular}
+\end{center}
+
+\end{document}
